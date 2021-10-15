@@ -59,13 +59,15 @@ def main(args):
     writer = open(args.output, "w")
     writer.write(f"company_a\taddress_a\tcompany_b\taddress_b\n")
     start_time = time.time()
+
+    fd = FindDuplicate()
+
     for alphabet, idx_list in idx_info.items():
         logger.info(f"{alphabet} : {len(idx_list):,d}")
         if len(idx_list) == 1:
             continue
         raw_data = load_corpus_by_idx(args.path, idx_list)
-        fd = FindDuplicate(raw_data)
-
+        fd.load(raw_data)
         output = []
         for i in range(0, len(idx_list) - 1):
             for j in range(i + 1, len(idx_list)):

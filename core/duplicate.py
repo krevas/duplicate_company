@@ -12,9 +12,21 @@ logger = get_logger()
 
 
 class FindDuplicate:
-    def __init__(self, raw_data):
-        self.dup_index_map = dict()
+    def __init__(self):
+        self.company_threshold = 0.75
+        self.avg_threshold = 0.75
+
+    def load(self, raw_data):
         self.raw_data = raw_data
+        self.dup_index_map = dict()
+
+    def set_threshold(
+        self,
+        company_threshold: float = 0.75,
+        avg_threshold: float = 0.75,
+    ):
+        self.company_threshold = company_threshold
+        self.avg_threshold = avg_threshold
 
     @staticmethod
     def string_distance(text_a: str, text_b: str):
@@ -24,35 +36,34 @@ class FindDuplicate:
         leven_val = (max_len - Levenshtein.distance(text_a, text_b)) / float(max_len)
         ratio_val = ratio(text_a, text_b)
         jaro_val = jaro_winkler(text_a, text_b)
-        # print(f"{leven_val:0.2f} {ratio_val:0.2f} {jaro_val:0.2f}")
+        logger.debug(f"{leven_val:0.2f}\t{ratio_val:0.2f}\t{jaro_val:0.2f}")
         return average_3(leven_val, jaro_val, ratio_val)
 
     def _check_duplicate(self, idx, dup_index_map):
         company_distance = self.string_distance(
             self.raw_data[idx[0]]["company"], self.raw_data[idx[1]]["company"]
         )
-        rep_distance = self.string_distance(
-            self.raw_data[idx[0]]["address"], self.raw_data[idx[1]]["address"]
-        )
+        
+        if company_distance >= self.company_threshold:
+            address_distance = self.string_distance(
+                self.raw_data[idx[0]]["address"], self.raw_data[idx[1]]["address"]
+            )
+            sim = weighted_average_2(company_distance, address_distance)
+            sim = np.round(sim, 3)
+            if sim >= self.avg_threshold:
+                if idx[0] in dup_index_map:
+                    tmp_dict = dup_index_map.get(idx[0])
+                    tmp_dict.update({idx[1]: sim})
+                    dup_index_map.update({idx[0]: tmp_dict})
+                else:
+                    dup_index_map.update({idx[0]: {idx[1]: sim}})
 
-        if max(company_distance, rep_distance) >= 0.60:
-            if company_distance >= 0.70:
-                sim = weighted_average_2(company_distance, rep_distance)
-                sim = np.round(sim, 3)
-                if sim >= 0.75:
-                    if idx[0] in dup_index_map:
-                        tmp_dict = dup_index_map.get(idx[0])
-                        tmp_dict.update({idx[1]: sim})
-                        dup_index_map.update({idx[0]: tmp_dict})
-                    else:
-                        dup_index_map.update({idx[0]: {idx[1]: sim}})
-
-                    if idx[1] in dup_index_map:
-                        tmp_dict = dup_index_map.get(idx[1])
-                        tmp_dict.update({idx[0]: sim})
-                        dup_index_map.update({idx[1]: tmp_dict})
-                    else:
-                        dup_index_map.update({idx[1]: {idx[0]: sim}})
+                if idx[1] in dup_index_map:
+                    tmp_dict = dup_index_map.get(idx[1])
+                    tmp_dict.update({idx[0]: sim})
+                    dup_index_map.update({idx[1]: tmp_dict})
+                else:
+                    dup_index_map.update({idx[1]: {idx[0]: sim}})
 
         return dup_index_map
 
