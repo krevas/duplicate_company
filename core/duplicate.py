@@ -10,6 +10,7 @@ from utils import *
 
 logger = get_logger()
 
+
 class FindDuplicate:
     def __init__(self, raw_data):
         self.dup_index_map = dict()
@@ -35,7 +36,7 @@ class FindDuplicate:
         )
 
         if max(company_distance, rep_distance) >= 0.60:
-            if company_distance >= 0.61:
+            if company_distance >= 0.70:
                 sim = weighted_average_2(company_distance, rep_distance)
                 sim = np.round(sim, 3)
                 if sim >= 0.75:
@@ -66,18 +67,22 @@ class FindDuplicate:
         if dup_index_map:
             final_list.append(dup_index_map)
 
-    def run(self, idx_list: List, multi_num: int = 3):
+    def run(self, idx_list: List, multi_num: int = 1):
         manager = Manager()
         final_list = manager.list()
 
-        procs = []
-        n = len(idx_list) // multi_num
-        for sep_list in chunks(idx_list, n):
-            proc = Process(target=self._run, args=(sep_list, final_list))
-            procs.append(proc)
-            proc.start()
-        for proc in procs:
-            proc.join()
+        if multi_num == 1:
+            self._run(idx_list, final_list)
+        else:
+            procs = []
+            n = len(idx_list) // multi_num
+            for sep_list in chunks(idx_list, n):
+                proc = Process(target=self._run, args=(sep_list, final_list))
+                procs.append(proc)
+                proc.start()
+            for proc in procs:
+                proc.join()
+
         self._update_dup_index_map(final_list)
 
     def result(self):

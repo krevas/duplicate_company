@@ -9,23 +9,28 @@ from numba import jit
 def average_2(a, b):
     return (a + b) / 2.0
 
+
 @jit(nopython=True)
 def weighted_average_2(a, b):
     return a * 0.4 + b * 0.6
+
 
 @jit(nopython=True)
 def average_3(a, b, c):
     return (a + b + c) / 3.0
 
+
 def text_clean(text: str) -> str:
     text = re.sub("[^A-Za-z가-힣]", "", text).lower().strip()
     return text
+
 
 def chunks(lst: List, n: int):
     if n == 0:
         return lst
     for i in range(0, len(lst), n):
         yield lst[i : i + n]
+
 
 def merge_dict(a, b, path=None):
     if path is None:
@@ -42,7 +47,8 @@ def merge_dict(a, b, path=None):
             a[key] = b[key]
     return a
 
-def get_logger(level = logging.INFO):
+
+def get_logger(level=logging.INFO):
     LOG_FORMAT = "[%(asctime)-10s] (line: %(lineno)d) %(levelname)s - %(message)s"
     logging.basicConfig(format=LOG_FORMAT)
     logger = logging.getLogger(__name__)
