@@ -13,8 +13,8 @@ logger = get_logger()
 
 class FindDuplicate:
     def __init__(self):
-        self.company_threshold = 0.75
-        self.avg_threshold = 0.75
+        self.company_threshold = 0.875
+        self.avg_threshold = 0.82
 
     def load(self, raw_data):
         self.raw_data = raw_data
@@ -22,8 +22,8 @@ class FindDuplicate:
 
     def set_threshold(
         self,
-        company_threshold: float = 0.75,
-        avg_threshold: float = 0.75,
+        company_threshold: float = 0.875,
+        avg_threshold: float = 0.82,
     ):
         self.company_threshold = company_threshold
         self.avg_threshold = avg_threshold
@@ -51,6 +51,7 @@ class FindDuplicate:
             sim = weighted_average_2(company_distance, address_distance)
             sim = np.round(sim, 3)
             if sim >= self.avg_threshold:
+            # if sim >= self.avg_threshold or int(company_distance) == 1:
                 if idx[0] in dup_index_map:
                     tmp_dict = dup_index_map.get(idx[0])
                     tmp_dict.update({idx[1]: sim})

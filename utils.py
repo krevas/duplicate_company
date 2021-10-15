@@ -21,7 +21,7 @@ def average_3(a, b, c):
 
 
 def text_clean(text: str) -> str:
-    text = re.sub("[^A-Za-z가-힣]", "", text).lower().strip()
+    text = re.sub("[^A-Za-z0-9가-힣]", "", text).lower().strip()
     return text
 
 
