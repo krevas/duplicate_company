@@ -11,13 +11,18 @@ def average_2(a, b):
 
 
 @jit(nopython=True)
-def weighted_average_2(a, b):
-    return a * 0.4 + b * 0.6
+def average_3(a, b, c):
+    return (a + b + c) / 3.0
 
 
 @jit(nopython=True)
-def average_3(a, b, c):
-    return (a + b + c) / 3.0
+def weighted_average_2(a, b, a_weight=0.4, b_weight=0.6):
+    return a * a_weight + b * b_weight
+
+
+@jit(nopython=True)
+def weighted_average_3(a, b, c, a_weight=0.3, b_weight=0.5, c_weight=0.2):
+    return a * a_weight + b * b_weight + c * c_weight
 
 
 def text_clean(text: str) -> str:

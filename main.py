@@ -14,22 +14,24 @@ def load_alphabet(path: str, size: int):
         line = line.strip()
         if line:
             split = line.split(",")
-            if len(split) < 7:continue
+            if len(split) < 7:
+                continue
             company = text_clean(split[1])
             if company:
-                if company[0:2] in alpha_set:
-                    tmp = alpha_set.get(company[0:2])
+                if company[0:3] in alpha_set:
+                    tmp = alpha_set.get(company[0:3])
                     tmp.add(cnt)
-                    alpha_set.update({company[0:2]: tmp})
+                    alpha_set.update({company[0:3]: tmp})
                 else:
                     tmp = set()
                     tmp.add(cnt)
-                    alpha_set.update({company[0:2]: tmp})
+                    alpha_set.update({company[0:3]: tmp})
                 cnt += 1
                 if cnt == size:
                     break
 
     return dict(sorted(alpha_set.items()))
+
 
 def load_corpus(path: str):
     raw_data = []
@@ -39,7 +41,8 @@ def load_corpus(path: str):
         line = line.strip()
         if line:
             split = line.split(",")
-            if len(split) < 7:continue
+            if len(split) < 7:
+                continue
             company = text_clean(split[1])
             if company:
                 raw_data.append(
@@ -97,12 +100,13 @@ def main(args):
             if output:
                 fd.run(output, multi_num=args.multi_num)
                 output = []
-            
+
     dup_index_map = fd.result()
 
     for k, v in sorted(dup_index_map.items()):
         for idx, sim in sorted(v.items(), key=lambda item: item[1], reverse=True):
-            if int(sim) == 1:continue
+            if int(sim) == 1:
+                continue
             writer.write(
                 f"{raw_data[k]['origin_company']}\t{raw_data[k]['origin_address']}\t{raw_data[idx]['origin_company']}\t{raw_data[idx]['origin_address']}\t{sim:0.2f}\n"
             )
